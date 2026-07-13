@@ -255,7 +255,7 @@ export default function App() {
           </div>
           <div className="flex items-center gap-2">
             <PwaInstallButton />
-            <a href="https://github.com/mohsen-ghassemi/Video-To-Gif"
+             <a href="https://github.com/Yesmohsen/Video-To-Gif"
               target="_blank" rel="noopener noreferrer"
               className="text-slate-500 hover:text-slate-300 transition-colors">
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">

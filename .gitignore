@@ -3,3 +3,4 @@ dist
 .vite
 compact.md
 public/ffmpeg-core/
+!public/fonts/

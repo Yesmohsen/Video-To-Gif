@@ -12,6 +12,10 @@ export async function convertVideoToGif({
   width = 320,
   quality = 256,
   dithering = false,
+  text = '',
+  fontSize = 32,
+  fontColor = '#FFFFFF',
+  textPosition = 'bottom',
   onFFLoad = () => {},
   onProgress = () => {},
   cancelRef = { current: false },
@@ -31,6 +35,22 @@ export async function convertVideoToGif({
   if (cancelRef.current) {
     try { await ffmpeg.deleteFile(inName); } catch {}
     return null;
+  }
+
+  let textFilter = '';
+  if (text.trim()) {
+    const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
+    const fontUrl = `${base}/fonts/OpenSans-Regular.ttf`;
+    const fontRes = await fetch(fontUrl);
+    const fontData = new Uint8Array(await fontRes.arrayBuffer());
+    await ffmpeg.writeFile('font.ttf', fontData);
+    await ffmpeg.writeFile('text.txt', new TextEncoder().encode(text.trim()));
+    const color = fontColor.startsWith('#') ? `0x${fontColor.slice(1)}` : fontColor;
+    const margin = 12;
+    const posY = textPosition === 'top' ? `${margin}`
+      : textPosition === 'center' ? '(h-text_h)/2'
+      : `h-text_h-${margin}`;
+    textFilter = `drawtext=fontfile=/font.ttf:textfile=/text.txt:fontsize=${fontSize}:fontcolor=${color}:x=(w-text_w)/2:y=${posY}`;
   }
 
   const duration = endTime - startTime;
@@ -59,10 +79,13 @@ export async function convertVideoToGif({
     `setpts=PTS/${speed}`,
     `fps=${fps}`,
     `scale=${width}:-1:flags=lanczos`,
+  ];
+  if (textFilter) filterParts.push(textFilter);
+  filterParts.push(
     'split[s0][s1]',
     `[s0]palettegen=max_colors=${quality}:stats_mode=diff[p]`,
     `[s1][p]paletteuse=dither=${dithering ? 'floyd_steinberg' : 'none'}`,
-  ];
+  );
 
   try {
     await ffmpeg.exec([

@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import {
   Upload, Film, Download, ClipboardCopy, X, Settings, Image,
   Clock, Monitor, Play, Square, ChevronDown, ChevronUp,
-  AlertCircle, CheckCircle2, Crop, Palette, WifiOff
+  AlertCircle, CheckCircle2, Crop, Palette, WifiOff, Type
 } from 'lucide-react';
 import { convertVideoToGif } from './utils/gifConverter';
 
@@ -19,6 +19,10 @@ export default function App() {
   const [outputWidth, setOutputWidth] = useState(320);
   const [quality, setQuality] = useState(256);
   const [dithering, setDithering] = useState(false);
+  const [text, setText] = useState('');
+  const [fontSize, setFontSize] = useState(32);
+  const [fontColor, setFontColor] = useState('#FFFFFF');
+  const [textPosition, setTextPosition] = useState('bottom');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [ffLoading, setFFLoading] = useState(false);
@@ -115,6 +119,10 @@ export default function App() {
         width: outputWidth,
         quality,
         dithering,
+        text,
+        fontSize,
+        fontColor,
+        textPosition,
         onFFLoad: (pct) => {
           setFFLoadProgress(pct);
           if (pct >= 100) setFFLoading(false);
@@ -475,6 +483,41 @@ export default function App() {
                   </button>
                   {showAdvanced && (
                     <div className="px-4 pb-4 space-y-4 border-t border-slate-800 pt-3">
+                      <div>
+                        <div className="flex items-center gap-2 text-xs text-slate-400 mb-2">
+                          <Type size={12} />
+                          Text Overlay
+                        </div>
+                        <input type="text" value={text} placeholder="Enter text..."
+                          onChange={(e) => setText(e.target.value)}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 mb-2" />
+                        <div className="flex gap-2">
+                          <div className="flex-1">
+                            <label className="text-[11px] text-slate-500 mb-1 block">Size</label>
+                            <select value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))}
+                              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+                              {[16, 20, 24, 28, 32, 36, 40, 48, 56, 64, 72].map(s => (
+                                <option key={s} value={s}>{s}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="flex-1">
+                            <label className="text-[11px] text-slate-500 mb-1 block">Position</label>
+                            <select value={textPosition} onChange={(e) => setTextPosition(e.target.value)}
+                              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+                              <option value="top">Top</option>
+                              <option value="center">Center</option>
+                              <option value="bottom">Bottom</option>
+                            </select>
+                          </div>
+                          <div className="w-12">
+                            <label className="text-[11px] text-slate-500 mb-1 block">Color</label>
+                            <input type="color" value={fontColor}
+                              onChange={(e) => setFontColor(e.target.value)}
+                              className="w-full h-[34px] bg-slate-800 border border-slate-700 rounded-lg cursor-pointer p-0.5" />
+                          </div>
+                        </div>
+                      </div>
                       <div>
                         <div className="flex items-center gap-2 text-xs text-slate-400 mb-2">
                           <Palette size={12} />
